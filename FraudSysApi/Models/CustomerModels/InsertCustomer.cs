@@ -9,7 +9,9 @@ namespace FraudSysApi.Models.CustomerModels
     {
         public InsertCustomerValidator()
         {
-            RuleFor(x => x.Document).Custom((document, context) =>
+            RuleFor(x => x.Document)
+            .NotEmpty().WithMessage("shouldNotBeEmpty")
+            .Custom((document, context) =>
             {
                 if (!document.IsValid())
                 {
@@ -17,8 +19,8 @@ namespace FraudSysApi.Models.CustomerModels
                 }
             });
 
-            RuleFor(x => x.AgencyNumber).NotEmpty().Length(4);
-            RuleFor(x => x.AccountNumber).NotEmpty().Length(6);
+            RuleFor(x => x.AgencyNumber).NotEmpty().Length(4).WithMessage("shouldHaveFourDigits");
+            RuleFor(x => x.AccountNumber).NotEmpty().Length(6).WithMessage("shouldHaveSixDigits");
             RuleFor(x => x.PixTransactionLimit).GreaterThan(0).WithMessage("shouldHaveValueGreatherThanZero");
         }
     }

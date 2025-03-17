@@ -5,11 +5,14 @@ namespace FraudSysApi.Models.CustomerModels
     [DynamoDBTable("sysfraud_customer")]
     public class Customer
     {
-        [DynamoDBHashKey]
-        public string Id { get; set; }
-        public string Document { get; set; }
-        public string AgencyNumber { get; set; }
-        public string AccountNumber { get; set; }
+        [DynamoDBHashKey("pk")]
+        public required string Document { get; set; }
+        public required string AgencyNumber { get; set; }
+        public required string AccountNumber { get; set; }
+
+        [DynamoDBRangeKey("sk")]
+        public string AgencyNumberAccountNumber { get => $"{AgencyNumber}-{AccountNumber}"; }
+        
         public decimal PixTransactionLimit { get; set; }
     }
 

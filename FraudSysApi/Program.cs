@@ -1,6 +1,6 @@
 using FluentValidation;
+using FluentValidation.AspNetCore;
 using FraudSysApi.IoC;
-using FraudSysApi.Models.CustomerModels;
 
 namespace FraudSysApi
 {
@@ -15,15 +15,21 @@ namespace FraudSysApi
             RepositoryInjection.Inject(builder);
             DatabaseInjection.Inject(builder);
 
-            builder.Services.AddScoped<IValidator<InsertCustomer>, InsertCustomerValidator>();
 
             builder.Services.AddControllers();
+
+            builder.Services.AddFluentValidationAutoValidation();
+            builder.Services.AddFluentValidationClientsideAdapters();
+            builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
+            
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
             WebApplication app = builder.Build();
 
+            //CustomerTable.CreateCustomerTableAsync(new AmazonDynamoDBClient(new AmazonDynamoDBConfig() {})).Wait();
+            
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {

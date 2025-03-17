@@ -1,6 +1,6 @@
 ﻿namespace FraudSysApi.Models.Enums
 {
-    public enum TransactionStates : int
+    public enum TransactionState : int
     {
         ACCOUNT_NOT_FOUND = 404,
         INSUFFICIENT_FUNDS,

@@ -1,40 +1,37 @@
-﻿namespace FraudSysApi.Utils
+﻿using System.Globalization;
+
+namespace FraudSysApi.Utils
 {
     public static class DocumentUtils
     {
-        public static bool IsValid(this string document)
+        public static bool IsValid(this string cpf)
         {
-            return document.Length == 11 && document.CheckDocument();
+            if (string.IsNullOrEmpty(cpf)) return false;
+            
+            cpf = new string(cpf.Where(char.IsDigit).ToArray());
+            
+            if(cpf.Length != 11) return false;
+            
+            //if(cpf.Distinct().Count() != 11) return false;
+
+            int[] cpfDigits = cpf.Select(d => int.Parse(d.ToString())).ToArray();
+            return VerifyDigit(cpfDigits, 9) && VerifyDigit(cpfDigits, 10);
         }
 
-        public static bool CheckDocument(this string document)
+        private static bool VerifyDigit(int[] cpf, int position)
         {
-            int[] digits = document.Select(c => int.Parse(c.ToString())).ToArray();
+            int sum = 0;
+            int multiplier = position + 1;
 
-            for(int i = 0; i < 9; i++)
+            for (int i = 0; i < position; i++)
             {
-                int sum = 0;
-                for (int j = 0; j < 9; j++)
-                {
-                    sum += digits[j] * (i + 1 - j);
-                }
-                if (sum % 11 < 2)
-                {
-                    if (digits[9] != 0)
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    if (digits[9] != 11 - sum % 11)
-                    {
-                        return false;
-                    }
-                }
+                sum += cpf[i] * multiplier--;
             }
-
-            return true;
+            
+            int rest = sum % 11;
+            int verifierDigit = rest < 2 ? 0 : 11 - rest;
+            
+            return verifierDigit == cpf[position];
         }
     }
 }

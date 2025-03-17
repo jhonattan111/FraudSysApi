@@ -1,58 +1,76 @@
-﻿using Amazon.DynamoDBv2.Model;
+﻿using System.Linq.Expressions;
+using Amazon.DynamoDBv2.Model;
 using Amazon.DynamoDBv2;
 
 namespace FraudSysApi.CreateTables
 {
     public static class CustomerTable
     {
-        public static async Task<bool> CreateCustomerTableAsync(AmazonDynamoDBClient client, string tableName)
+        public static async Task<bool> CreateCustomerTableAsync(IAmazonDynamoDB client)
         {
-            var response = await client.CreateTableAsync(new CreateTableRequest
+            try
             {
-                TableName = tableName,
-                AttributeDefinitions =
-                [
-                    new()
+                CreateTableResponse? request = await client.CreateTableAsync(new CreateTableRequest
+                {
+                    TableName = "sysfraud_customer",
+                    AttributeDefinitions =
+                    [
+                        new()
+                        {
+                            AttributeName = "document",
+                            AttributeType = ScalarAttributeType.S
+                        },
+                        new()
+                        {
+                            AttributeName = "agency_number_account_number",
+                            AttributeType = ScalarAttributeType.S
+                        }
+                    ],
+                    KeySchema =
+                    [
+                        new KeySchemaElement
+                        {
+                            AttributeName = "Document",
+                            KeyType = KeyType.HASH
+                        }
+                    ],
+                    ProvisionedThroughput = new()
                     {
-                        AttributeName = "id",
-                        AttributeType = ScalarAttributeType.S,
+                        ReadCapacityUnits = 5,
+                        WriteCapacityUnits = 5
                     },
-                    new()
+                    GlobalSecondaryIndexes = new System.Collections.Generic.List<GlobalSecondaryIndex>
                     {
-                        AttributeName = "document",
-                        AttributeType = ScalarAttributeType.S,
-                    },
-                ],
-                KeySchema =
-                [
-                    new KeySchemaElement
-                    {
-                        AttributeName = "id",
-                        KeyType = KeyType.HASH,
-                    },
-                    new KeySchemaElement
-                    {
-                        AttributeName = "document",
-                        KeyType = KeyType.RANGE,
-                    },
-                ]
-            });
+                        new GlobalSecondaryIndex
+                        {
+                            IndexName = "agency_number_account_number_index",
+                            KeySchema =
+                            [
+                                new KeySchemaElement
+                                {
+                                    AttributeName = "AgencyNumberAccountNumber",
+                                    KeyType = KeyType.HASH
+                                }
+                            ],
+                            Projection = new Projection
+                            {
+                                ProjectionType = ProjectionType.ALL
+                            },
+                            ProvisionedThroughput = new ProvisionedThroughput
+                            {
+                                ReadCapacityUnits = 5,
+                                WriteCapacityUnits = 5
+                            }
+                        }
+                    }
+                });
 
-            var request = new DescribeTableRequest
-            {
-                TableName = response.TableDescription.TableName,
-            };
-
-            TableStatus status;
-
-            do
-            {
-                DescribeTableResponse describeTableResponse = await client.DescribeTableAsync(request);
-                status = describeTableResponse.Table.TableStatus;
+                return true;
             }
-            while (status != "ACTIVE");
-
-            return status == TableStatus.ACTIVE;
+            catch (Exception ex)
+            {
+                return false;
+            }
         }
     }
 }

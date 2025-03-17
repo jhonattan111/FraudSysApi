@@ -10,7 +10,6 @@ namespace FraudSysApi.Repositories
         public async Task<CustomerResponse> Insert(InsertCustomer customer)
         {
             Customer addCustomer = new() {
-                Id = Guid.NewGuid().ToString(),
                 Document = customer.Document,
                 AgencyNumber = customer.AgencyNumber,
                 AccountNumber = customer.AccountNumber,
@@ -18,14 +17,22 @@ namespace FraudSysApi.Repositories
             };
 
             await context.SaveAsync(addCustomer);
-            return new CustomerResponse(addCustomer.Id, addCustomer.Document, addCustomer.AgencyNumber, addCustomer.AccountNumber, addCustomer.PixTransactionLimit);
+            return new CustomerResponse(addCustomer.Document, addCustomer.AgencyNumber, addCustomer.AccountNumber, addCustomer.PixTransactionLimit);
         }
 
         public async Task<IEnumerable<CustomerResponse>> ListAllCustomers()
         {
-            List<Customer> customers = await context.ScanAsync<Customer>([]).GetRemainingAsync();
+            try
+            {
+                List<Customer> customers = await context.ScanAsync<Customer>([]).GetRemainingAsync();
 
-            return customers.Select(c => new CustomerResponse(c.Id, c.Document, c.AgencyNumber, c.AccountNumber, c.PixTransactionLimit));
+                return customers.Select(c =>
+                    new CustomerResponse(c.Document, c.AgencyNumber, c.AccountNumber, c.PixTransactionLimit));
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
         }
     }
 }

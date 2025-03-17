@@ -6,16 +6,21 @@ namespace FraudSysApi.Models.CustomerModels
     public class Customer
     {
         [DynamoDBHashKey("pk")]
-        public required string Document { get; set; }
-        public required string AgencyNumber { get; set; }
-        public required string AccountNumber { get; set; }
+        public string Document { get; set; }
 
-        [DynamoDBRangeKey("sk")]
-        public string AgencyNumberAccountNumber { get => $"{AgencyNumber}-{AccountNumber}"; }
-        
+        [DynamoDBProperty("AgencyNumber")]
+        public string AgencyNumber { get; set; }
+
+        [DynamoDBProperty("AccountNumber")]
+        public string AccountNumber { get; set; }
+
+        [DynamoDBProperty("PixTransactionLimit")]
         public decimal PixTransactionLimit { get; set; }
+
+        [DynamoDBGlobalSecondaryIndexHashKey("AgencyNumberAccountNumberIndex", AttributeName = "sk")]
+        public string AgencyNumberAccountNumber => $"{AgencyNumber}-{AccountNumber}";
     }
 
-    public record CustomerResponse(string Id, string Document, string AgencyNumber, string AccountNumber, decimal PixTransactionLimit);
+    public record CustomerResponse(string Document, string AgencyNumber, string AccountNumber, decimal PixTransactionLimit);
 
 }

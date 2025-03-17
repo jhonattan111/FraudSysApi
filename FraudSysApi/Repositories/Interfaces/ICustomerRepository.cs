@@ -6,5 +6,8 @@ namespace FraudSysApi.Repositories.Interfaces
     {
         Task<CustomerResponse> Insert(InsertCustomer customer);
         Task<IEnumerable<CustomerResponse>> ListAllCustomers();
+        Task<Customer> GetModel(string document);
+        Task<bool> UpdatePixTransactionLimit(string document, decimal newPixLimitTransaction);
+        Task<CustomerResponse> GetByAgencyNumberAccountNumber(string agencyNumber, string accountNumber);
     }
 }

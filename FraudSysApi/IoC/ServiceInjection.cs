@@ -1,6 +1,5 @@
 ﻿using FraudSysApi.Services;
 using FraudSysApi.Services.Interfaces;
-using FraudSysApi.Services.Shared;
 
 namespace FraudSysApi.IoC
 {

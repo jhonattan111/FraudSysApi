@@ -35,6 +35,20 @@ namespace FraudSysApi.Controllers
             }
         }
 
+        [HttpPut]
+        public async Task<IActionResult> Update([FromBody] UpdateCustomer customer)
+        {
+            try
+            {
+                ApiResponse<CustomerResponse> response = await customerService.Update(customer);
+                return StatusCode(response.StatusCode, new { response.Message, response.Data });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -49,12 +63,14 @@ namespace FraudSysApi.Controllers
             }
         }
 
-        [HttpPut("[action]/{document}")]
-        public async Task<IActionResult> UpdatePixTransactionLimit([FromQuery] decimal newPixLimitTransaction, string document)
+        [HttpPut("[action]/{document}/{newPixLimitTransaction}")]
+        public async Task<IActionResult> UpdatePixTransactionLimit(string newPixLimitTransaction, string document)
         {
             try
             {
-                ApiResponse<string> response = await customerService.UpdatePixTransactionLimit(document, newPixLimitTransaction);
+                decimal.TryParse(newPixLimitTransaction, out decimal newPixTransactionParsed);
+                newPixTransactionParsed /= 100;
+                ApiResponse<string> response = await customerService.UpdatePixTransactionLimit(document, newPixTransactionParsed);
                 return StatusCode(response.StatusCode, new { response.Message });
             }
             catch (Exception ex)
@@ -63,9 +79,10 @@ namespace FraudSysApi.Controllers
             }
         }
 
-        [HttpDelete()]
-        public async Task<IActionResult> RemoveCustomer()
+        [HttpDelete("{document}")]
+        public async Task<IActionResult> Delete(string document)
         {
+            ApiResponse<string> response = await customerService.Delete(document);
             return Ok();
         }
 

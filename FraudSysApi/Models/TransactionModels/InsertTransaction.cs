@@ -10,26 +10,26 @@ namespace FraudSysApi.Models.TransactionModels
         public InsertTransactionValidator()
         {
             RuleFor(x => x.FromDocument)
-            .NotEmpty().WithMessage("shouldNotBeEmpty")
+            .NotEmpty().WithMessage("SHOULD_NOT_BE_EMPTY")
             .Custom((document, context) =>
             {
                 if (!document.IsValid())
                 {
-                    context.AddFailure("shouldHaveValidDocument");
+                    context.AddFailure("SHOULD_HAVE_VALID_DOCUMENT");
                 }
             });
 
             RuleFor(x => x.ToDocument)
-            .NotEmpty().WithMessage("shouldNotBeEmpty")
+            .NotEmpty().WithMessage("SHOULD_NOT_BE_EMPTY")
             .Custom((document, context) =>
             {
                 if (!document.IsValid())
                 {
-                    context.AddFailure("shouldHaveValidDocument");
+                    context.AddFailure("SHOULD_HAVE_VALID_DOCUMENT");
                 }
             });
 
-            RuleFor(x => x.Value).GreaterThan(0).WithMessage("shouldHaveValueGreatherThanZero");
+            RuleFor(x => x.Value).GreaterThan(0).WithMessage("SHOULD_HAVE_VALUE_GREATHER_THAN_ZERO");
 
         }
     }

@@ -14,7 +14,7 @@ namespace FraudSysApi
             ServiceInjection.Inject(builder);
             RepositoryInjection.Inject(builder);
             DatabaseInjection.Inject(builder);
-
+            CorsInjection.Inject(builder.Services);
 
             builder.Services.AddControllers();
 
@@ -38,6 +38,8 @@ namespace FraudSysApi
             }
 
             app.UseHttpsRedirection();
+
+            app.UseCors("AllowedUrls");
 
             app.UseAuthorization();
 

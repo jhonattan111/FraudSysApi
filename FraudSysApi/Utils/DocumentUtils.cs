@@ -12,8 +12,6 @@ namespace FraudSysApi.Utils
             
             if(cpf.Length != 11) return false;
             
-            //if(cpf.Distinct().Count() != 11) return false;
-
             int[] cpfDigits = cpf.Select(d => int.Parse(d.ToString())).ToArray();
             return VerifyDigit(cpfDigits, 9) && VerifyDigit(cpfDigits, 10);
         }

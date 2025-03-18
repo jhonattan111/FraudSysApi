@@ -2,8 +2,11 @@
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.DynamoDBv2.Model;
+using FraudSysApi.Models;
 using FraudSysApi.Models.CustomerModels;
 using FraudSysApi.Repositories.Interfaces;
+using System.Collections.Concurrent;
+using System.Globalization;
 
 namespace FraudSysApi.Repositories
 {
@@ -29,6 +32,48 @@ namespace FraudSysApi.Repositories
 
             await context.SaveAsync(addCustomer);
             return new CustomerResponse(addCustomer.Document, addCustomer.AgencyNumber, addCustomer.AccountNumber, addCustomer.PixTransactionLimit);
+        }
+
+        public async Task<CustomerResponse> Update(UpdateCustomer customer, Customer customerModel)
+        {
+            UpdateItemRequest request = new()
+            {
+                TableName = TableName,
+                Key = new() {
+                    { "Document", new AttributeValue { S = customer.Document} }
+                },
+                UpdateExpression = "SET AgencyNumber = :AgencyNumber, AccountNumber = :AccountNumber",
+                ExpressionAttributeValues = new()
+                {
+                    { ":AgencyNumber", new() { N = customer.AgencyNumber } },
+                    { ":AccountNumber", new() { N = customer.AccountNumber } },
+                }
+            };
+
+            UpdateItemResponse updatedItem = await client.UpdateItemAsync(request);
+            return new CustomerResponse(customer.Document, customer.AgencyNumber, customer.AccountNumber, customerModel.PixTransactionLimit);
+        }
+
+        public async Task<bool> Delete(string document)
+        {
+            try
+            {
+                var deleteRequest = new DeleteItemRequest
+                {
+                    TableName = TableName,
+                    Key = new Dictionary<string, AttributeValue>
+                    {
+                        { "Document", new AttributeValue { S = document } }
+                }
+                };
+
+                var response = await client.DeleteItemAsync(deleteRequest);
+                return response.HttpStatusCode == System.Net.HttpStatusCode.OK;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
         public async Task<IEnumerable<CustomerResponse>> ListAllCustomers()
@@ -57,7 +102,7 @@ namespace FraudSysApi.Repositories
                 UpdateExpression = "SET PixTransactionLimit = :PixTransactionLimit",
                 ExpressionAttributeValues = new()
                 {
-                    { ":PixTransactionLimit", new() { N = newPixLimitTransaction.ToString() } }
+                    { ":PixTransactionLimit", new() { N = newPixLimitTransaction.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture) } }
                 }
             };
 
